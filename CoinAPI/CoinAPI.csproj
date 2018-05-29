@@ -5,15 +5,39 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ViewModels\Validations\RegistrationViewModelValidator.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.Identity.MongoDbCore" Version="1.0.8" />
+    <PackageReference Include="AutoMapper" Version="6.2.2" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="3.2.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="7.5.2" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.0.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" />
+    <PackageReference Include="MongoDB.Driver" Version="2.6.1" />
   </ItemGroup>
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CoinAPI.Nethereum.Services\CoinAPI.Nethereum.Services.csproj" />
+    <ProjectReference Include="..\Common\CoinAPI.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="MongoRepository2">
+      <HintPath>..\libs\MongoRepository2.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
