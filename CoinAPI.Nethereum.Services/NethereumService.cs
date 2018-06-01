@@ -8,6 +8,7 @@ using Nethereum.Signer;
 using Nethereum.StandardTokenEIP20;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
+using System;
 using System.Numerics;
 using System.Threading.Tasks;
 
@@ -73,20 +74,20 @@ namespace CoinAPI.Nethereum.Services
             var weiPrice = Web3.Convert.ToWei(price);
             var contract = web3.Eth.GetContract(Constants.AbiToken, smartContractAddressConfiguration.TokenAddress);
             var createOrderFunction = contract.GetFunction("createOrder");
+            var realAmount = amount * (decimal)Math.Pow(10, 18);
             var transactionInput = new TransactionInput(null, smartContractAddressConfiguration.TokenAddress, publicAddress, new HexBigInteger(3000000), new HexBigInteger(4), null);
-            var transactionHash = await createOrderFunction.SendTransactionAsync(transactionInput, transactionId, publicAddress, amount, weiPrice);
+            var transactionHash = await createOrderFunction.SendTransactionAsync(transactionInput, transactionId, realAmount, weiPrice);
             return transactionHash;
         }
 
-        public async Task<string> BuyOrder(string privateKey, string transactionId)
+        public async Task<string> BuyOrder(string privateKey, string transactionId, decimal price)
         {
             var web3 = new Web3(new Account(privateKey), this.smartContractAddressConfiguration.NodeUrl);
             var publicAddress = GetPublicAddress(privateKey);
             var contract = web3.Eth.GetContract(Constants.AbiToken, smartContractAddressConfiguration.TokenAddress);
+            var weiPrice = Web3.Convert.ToWei(price);
             var buyOrderFunction = contract.GetFunction("buyOrder");
-            var orderFunction = contract.GetFunction("order");
-            var order = await orderFunction.CallDeserializingToObjectAsync<Order>(transactionId, 0);
-            var transactionHash = await buyOrderFunction.SendTransactionAsync(new TransactionInput(null, smartContractAddressConfiguration.TokenAddress, publicAddress, new HexBigInteger(3000000), new HexBigInteger(4), new HexBigInteger(order.Price)), transactionId);
+            var transactionHash = await buyOrderFunction.SendTransactionAsync(new TransactionInput(null, smartContractAddressConfiguration.TokenAddress, publicAddress, new HexBigInteger(3000000), new HexBigInteger(4), new HexBigInteger(weiPrice)), transactionId);
             return transactionHash;
         }
 
@@ -99,6 +100,35 @@ namespace CoinAPI.Nethereum.Services
             var transactionHash = await claimDividendsFunction.SendTransactionAsync(new TransactionInput(null, smartContractAddressConfiguration.TokenAddress, publicAddress, new HexBigInteger(3000000), new HexBigInteger(4), null));
             return transactionHash;
         }
+
+        public async Task<decimal> GetPendingDividends(string privateKey)
+        {
+            var web3 = new Web3(this.smartContractAddressConfiguration.NodeUrl);
+            var publicAddress = GetPublicAddress(privateKey);
+            var contract = web3.Eth.GetContract(Constants.AbiToken, smartContractAddressConfiguration.TokenAddress);
+            var pendingDividendsFunction = contract.GetFunction("dividends");
+            var pendingDividendsWei = await pendingDividendsFunction.CallDeserializingToObjectAsync<long>(publicAddress).ConfigureAwait(false);
+            return Web3.Convert.FromWei(pendingDividendsWei);
+        }
+
+        public async Task<decimal> GetTokenPrice()
+        {
+            var web3 = new Web3(this.smartContractAddressConfiguration.NodeUrl);
+            var contract = web3.Eth.GetContract(Constants.AbiICO, smartContractAddressConfiguration.ICOAddress);
+            var tokenPriceFunction = contract.GetFunction("price");
+            var tokenPriceWei = await tokenPriceFunction.CallAsync<long>().ConfigureAwait(false);
+            return Web3.Convert.FromWei(tokenPriceWei);
+        }
+
+        public async Task<decimal> GetAmountRaised()
+        {
+            var web3 = new Web3(this.smartContractAddressConfiguration.NodeUrl);
+            var contract = web3.Eth.GetContract(Constants.AbiICO, smartContractAddressConfiguration.ICOAddress);
+            var fundsRaisedFunction = contract.GetFunction("amountRaised");
+            var fundsRaisedWei = await fundsRaisedFunction.CallAsync<long>().ConfigureAwait(false);
+            return Web3.Convert.FromWei(fundsRaisedWei);
+        }
+
 
     }
 }

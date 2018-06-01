@@ -12,7 +12,9 @@ namespace CoinAPI.Models.Entities
     public class Order: Entity
     {
         [DataMember]
-        public string TransacionId { get; set; }
+        public string TransactionBlockchain { get; set; }
+        [DataMember]
+        public string TransactionId { get; set; }
         [DataMember]
         public string Seller { get; set; }
         [DataMember]

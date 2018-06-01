@@ -35,10 +35,11 @@ namespace CoinAPI.Controllers
         }
 
         [HttpGet]
-        [Route("api/Wallet/Info/{userName}")]
-        public async Task<IActionResult> GetAccountInfo(string userName)
+        [Route("api/Wallet/Info")]
+        public async Task<IActionResult> GetAccountInfo()
         {
-            var user = mongoRepository.Where(u => u.Username == userName).FirstOrDefault();
+            var userClaims = _caller.Claims.Single(c => c.Type == "id");
+            var user = mongoRepository.Where(u => u.Username == userClaims.Value).FirstOrDefault();
             var publicAddress = nethereumService.GetPublicAddress(user.PrivateKey);
             var ethBalance = await nethereumService.GetAccountETHBalance(publicAddress);
             var tokenBalance = await nethereumService.GetAccountTokenBalance(publicAddress);
@@ -59,7 +60,7 @@ namespace CoinAPI.Controllers
             var user = mongoRepository.Where(u => u.Username == userClaims.Value).FirstOrDefault();
             var publicAddress = nethereumService.GetPublicAddress(user.PrivateKey);
             var ethBalance = await nethereumService.GetAccountETHBalance(publicAddress);
-            if(ethBalance >= model.Amount)
+            if (ethBalance >= model.Amount)
             {
                 var result = await nethereumService.InvestICO(user.PrivateKey, model.Amount);
                 if (result)
@@ -71,7 +72,7 @@ namespace CoinAPI.Controllers
                     var message = "Transaction error";
                     //HttpError err = new HttpError(message);
                     return new BadRequestObjectResult(message);
-                }                
+                }
             }
             else
             {
@@ -79,6 +80,15 @@ namespace CoinAPI.Controllers
                 //HttpError err = new HttpError(message);
                 return new BadRequestObjectResult(message);
             }
+        }
+
+
+        [HttpGet]
+        [Route("api/Wallet/TokenPrice")]
+        public async Task<IActionResult> GetTokenPrice()
+        {
+            var tokenPrice = await this.nethereumService.GetTokenPrice();
+            return new OkObjectResult(tokenPrice);
         }
     }
 }

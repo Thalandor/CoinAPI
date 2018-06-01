@@ -39,31 +39,33 @@ namespace CoinAPI.Controllers
 
         [HttpPost]
         [Route("api/Exchange/Sell")]
-        public IActionResult Sell([FromBody]SellOrderViewModel model)
+        public async Task<IActionResult> Sell([FromBody]SellOrderViewModel model)
         {
             var userClaims = _caller.Claims.Single(c => c.Type == "id");
             var user = mongoRepositoryUserInfo.Where(u => u.Username == userClaims.Value).FirstOrDefault();
             var address = this.nethereumService.GetPublicAddress(user.PrivateKey);
             var order = new Order()
             {
-                TransacionId = Guid.NewGuid().ToString(),
+                TransactionId = Guid.NewGuid().ToString(),
                 Amount = model.Amount,
                 Price = model.Price,
                 Seller = address
             };
-            var tx = this.nethereumService.CreateOrder(user.PrivateKey, order.TransacionId, order.Amount, order.Price);
+            var tx = await this.nethereumService.CreateOrder(user.PrivateKey, order.TransactionId, order.Amount, order.Price);
+            order.TransactionBlockchain = tx;
             mongoRepositoryOrder.Add(order);
             return new OkObjectResult(tx);
         }
 
         [HttpPost]
         [Route("api/Exchange/Buy")]
-        public IActionResult Buy([FromBody]BuyOrderViewModel model)
+        public async Task<IActionResult> Buy([FromBody]BuyOrderViewModel model)
         {
             var userClaims = _caller.Claims.Single(c => c.Type == "id");
             var user = mongoRepositoryUserInfo.Where(u => u.Username == userClaims.Value).FirstOrDefault();
-            var tx = this.nethereumService.BuyOrder(user.PrivateKey, model.TransactionId);
-            mongoRepositoryOrder.Delete(o => o.TransacionId == model.TransactionId);
+            var order = mongoRepositoryOrder.Where(o => o.TransactionId == model.TransactionId).FirstOrDefault();
+            var tx = await this.nethereumService.BuyOrder(user.PrivateKey, model.TransactionId, order.Price);
+            mongoRepositoryOrder.Delete(o => o.TransactionId == model.TransactionId);
             return new OkObjectResult(tx);
         }
 

@@ -33,12 +33,22 @@ namespace CoinAPI.Controllers
 
         [HttpPost]
         [Route("api/Dividend/claimDividends")]
-        public IActionResult ClaimDividends()
+        public async Task<IActionResult> ClaimDividends()
         {
             var userClaims = _caller.Claims.Single(c => c.Type == "id");
             var user = mongoRepositoryUserInfo.Where(u => u.Username == userClaims.Value).FirstOrDefault();
-            var tx = this.nethereumService.ClaimDividend(user.PrivateKey);
+            var tx = await this.nethereumService.ClaimDividend(user.PrivateKey);
             return new OkObjectResult(tx);
+        }
+
+        [HttpGet]
+        [Route("api/Dividend/pendingDividends")]
+        public async Task<IActionResult> PendingDividends()
+        {
+            var userClaims = _caller.Claims.Single(c => c.Type == "id");
+            var user = mongoRepositoryUserInfo.Where(u => u.Username == userClaims.Value).FirstOrDefault();
+            var pendingDividends = await this.nethereumService.GetPendingDividends(user.PrivateKey);
+            return new OkObjectResult(pendingDividends);
         }
     }
 }

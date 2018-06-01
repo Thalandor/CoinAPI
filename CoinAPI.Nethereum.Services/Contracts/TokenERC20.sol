@@ -21,8 +21,6 @@ interface tokenRecipient { function receiveApproval(address _from, uint256 _valu
 
 contract TokenERC20 is owned{
     // Public variables of the token
-    bool public isFundingOpen;
-    uint public amountRaised;
     string public name;
     string public symbol;
     uint8 public decimals = 18;
@@ -35,10 +33,11 @@ contract TokenERC20 is owned{
     // This creates an array with all balances
     mapping (address => uint256) public balanceOf;
     mapping (address => mapping (address => uint256)) public allowance;
-    mapping (uint256 => Order) public orders;
+    mapping (string => Order) private orders;
     
     
     struct Order{
+        string transactionId;
         address owner;
         uint256 amount;
         uint256 price;
@@ -67,7 +66,6 @@ contract TokenERC20 is owned{
         balanceOf[msg.sender] = totalSupply;                // Give the creator all initial tokens
         name = tokenName;                                   // Set the name for display purposes
         symbol = tokenSymbol;                               // Set the symbol for display purposes
-        isFundingOpen = true;
     }
 
     /**
@@ -191,11 +189,11 @@ contract TokenERC20 is owned{
      * @param amount the amount of tokens willing to sell
      * @param price the price for which the tokens are being sold
      */
-    function createOrder(uint256 amount, uint256 price) public returns (bool success){
+    function createOrder(string transactionId, uint256 amount, uint256 price) public returns (bool success){
         require(balanceOf[msg.sender] >= amount); 
-        Order memory order = Order(msg.sender, amount, price);
-        orders[transactionCounter] = order;
-        transactionCounter++;
+        Order memory order = Order(transactionId, msg.sender, amount, price);
+        orders[transactionId] = order;
+        transactionCounter += 1;
         balanceOf[msg.sender] -= amount;
         emit CreateOrder(msg.sender, amount, price);
         return true;
@@ -207,7 +205,7 @@ contract TokenERC20 is owned{
      *  @param transactionId the id of transaction we want to buy
      * 
      */ 
-    function buyOrder(uint256 transactionId) public payable{
+    function buyOrder(string transactionId) public payable{
         require(orders[transactionId].price == msg.value);
         balanceOf[msg.sender] += orders[transactionId].amount;
         orders[transactionId].owner.transfer(msg.value);

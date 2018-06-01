@@ -1,21 +1,23 @@
 ﻿pragma solidity ^0.4.24;
 
+import "./ERC20Token.sol";
+
 interface token {
     function transfer(address receiver, uint amount) external;
 }
 
-contract Crowdsale {
-    address public beneficiary;
-    uint public fundingGoal;
+contract Crowdsale is owned{
+    address private beneficiary;
     uint public amountRaised;
     uint public price;
-    token public tokenReward;
-    uint public tokenAmount ;
+    token private tokenReward;
+    uint private tokenAmount ;
     mapping(address => uint256) public balanceOf;
-    bool fundingGoalReached = false;
-    bool crowdsaleClosed = false;
+    bool private fundingGoalReached = false;
+    bool private crowdsaleClosed = false;
+    address private tokenAddress;
 
-    event FundTransfer(address backer, uint amount);
+    event FundTransfer(address indexed backer, uint indexed amount);
     event FinishICO(address owner, uint amount);
 
     /**
@@ -26,13 +28,15 @@ contract Crowdsale {
     constructor(
         uint tokensToSell,
         address ifSuccessfulSendTo,
-        uint etherCostOfEachToken,
-        address addressOfTokenUsedAsReward
+        uint miliEtherCostOfEachToken,
+        string tokenName,
+        string tokenSymbol
     ) public {
+        tokenAddress = new TokenERC20(tokensToSell,tokenName,tokenSymbol);
         tokenAmount = tokensToSell;
         beneficiary = ifSuccessfulSendTo;
-        price = etherCostOfEachToken * 1 ether;
-        tokenReward = token(addressOfTokenUsedAsReward);
+        price = miliEtherCostOfEachToken * 0.001 ether;
+        tokenReward = token(tokenAddress);
     }
 
     /**
@@ -45,11 +49,11 @@ contract Crowdsale {
         uint amount = msg.value;
         balanceOf[msg.sender] += amount;
         amountRaised += amount;
-        tokenReward.transfer(msg.sender, amount / price);
+        tokenReward.transfer(msg.sender, amount * 10**18 / price);
         emit FundTransfer(msg.sender, amount);
     }
 
-    function finishSale() public {
+    function finishSale() public onlyOwner{
         crowdsaleClosed = true;
         if (beneficiary.send(amountRaised)) {
                 emit FinishICO(beneficiary, amountRaised);

@@ -16,8 +16,14 @@ namespace CoinAPI.Nethereum.Services
 
         Task<string> CreateOrder(string privateKey, string transactionId, decimal amount, decimal price);
 
-        Task<string> BuyOrder(string privateKey, string transactionId);
+        Task<string> BuyOrder(string privateKey, string transactionId, decimal price);
 
         Task<string> ClaimDividend(string privateKey);
+
+        Task<decimal> GetPendingDividends(string privateKey);
+
+        Task<decimal> GetTokenPrice();
+
+        Task<decimal> GetAmountRaised();
     }
 }
