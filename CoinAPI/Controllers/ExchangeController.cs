@@ -27,12 +27,12 @@ namespace CoinAPI.Controllers
         private readonly MongoRepository<UserInfo> mongoRepositoryUserInfo;
         private readonly MongoRepository<Order> mongoRepositoryOrder;
 
-        public ExchangeController(IHttpContextAccessor httpContextAccessor, INethereumService nethereumService)
+        public ExchangeController(IHttpContextAccessor httpContextAccessor, INethereumService nethereumService, MongoDbSettings mongoDbSettings)
         {
             _caller = httpContextAccessor.HttpContext.User;
             this.nethereumService = nethereumService;
-            this.mongoRepositoryUserInfo = new MongoRepository<UserInfo>("mongodb://localhost:27017/TokenDB");
-            this.mongoRepositoryOrder = new MongoRepository<Order>("mongodb://localhost:27017/TokenDB");
+            this.mongoRepositoryUserInfo = new MongoRepository<UserInfo>($"{mongoDbSettings.ConnectionString}/{mongoDbSettings.DatabaseName}" );
+            this.mongoRepositoryOrder = new MongoRepository<Order>($"{mongoDbSettings.ConnectionString}/{mongoDbSettings.DatabaseName}" );
         }
 
 

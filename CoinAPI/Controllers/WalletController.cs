@@ -27,11 +27,11 @@ namespace CoinAPI.Controllers
         private readonly INethereumService nethereumService;
         private readonly MongoRepository<UserInfo> mongoRepository;
 
-        public WalletController(IHttpContextAccessor httpContextAccessor, INethereumService nethereumService)
+        public WalletController(IHttpContextAccessor httpContextAccessor, INethereumService nethereumService, MongoDbSettings mongoDbSettings)
         {
             _caller = httpContextAccessor.HttpContext.User;
             this.nethereumService = nethereumService;
-            this.mongoRepository = new MongoRepository<UserInfo>("mongodb://localhost:27017/TokenDB");
+            this.mongoRepository = new MongoRepository<UserInfo>($"{mongoDbSettings.ConnectionString}/{mongoDbSettings.DatabaseName}" );
         }
 
         [HttpGet]

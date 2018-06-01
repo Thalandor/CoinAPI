@@ -24,11 +24,11 @@ namespace CoinAPI.Controllers
         private readonly INethereumService nethereumService;
         private readonly MongoRepository<UserInfo> mongoRepositoryUserInfo;
 
-        public DividendController(IHttpContextAccessor httpContextAccessor, INethereumService nethereumService)
+        public DividendController(IHttpContextAccessor httpContextAccessor, INethereumService nethereumService, MongoDbSettings mongoDbSettings)
         {
             _caller = httpContextAccessor.HttpContext.User;
             this.nethereumService = nethereumService;
-            this.mongoRepositoryUserInfo = new MongoRepository<UserInfo>("mongodb://localhost:27017/TokenDB");
+            this.mongoRepositoryUserInfo = new MongoRepository<UserInfo>($"{mongoDbSettings.ConnectionString}/{mongoDbSettings.DatabaseName}" );
         }
 
         [HttpPost]
