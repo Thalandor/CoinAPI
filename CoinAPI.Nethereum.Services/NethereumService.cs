@@ -53,7 +53,7 @@ namespace CoinAPI.Nethereum.Services
             return balanceEther;
         }
 
-        public async Task<bool> InvestICO(string privateKey, decimal amount)
+        public async Task<string> InvestICO(string privateKey, decimal amount)
         {
             var web3 = new Web3(new Account(privateKey), this.smartContractAddressConfiguration.NodeUrl);
             var publicAddress = GetPublicAddress(privateKey);
@@ -64,7 +64,7 @@ namespace CoinAPI.Nethereum.Services
             //var filterMe = await fundTransferEvent.CreateFilterAsync(publicAddress);
             var txn = await web3.TransactionManager.SendTransactionAsync(new TransactionInput(null, smartContractAddressConfiguration.ICOAddress, publicAddress, new HexBigInteger(3000000), new HexBigInteger(4), new HexBigInteger(weiAmount)));
             //var log = await fundTransferEvent.GetFilterChanges<FundTransferEvent>(filterMe);
-            return true;
+            return txn;
         }
                 
         public async Task<string> CreateOrder(string privateKey, string transactionId, decimal amount, decimal price)
@@ -107,7 +107,7 @@ namespace CoinAPI.Nethereum.Services
             var publicAddress = GetPublicAddress(privateKey);
             var contract = web3.Eth.GetContract(Constants.AbiToken, smartContractAddressConfiguration.TokenAddress);
             var pendingDividendsFunction = contract.GetFunction("dividends");
-            var pendingDividendsWei = await pendingDividendsFunction.CallDeserializingToObjectAsync<long>(publicAddress).ConfigureAwait(false);
+            var pendingDividendsWei = await pendingDividendsFunction.CallAsync<long>().ConfigureAwait(false);
             return Web3.Convert.FromWei(pendingDividendsWei);
         }
 

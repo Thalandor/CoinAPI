@@ -31,7 +31,7 @@ namespace CoinAPI.Controllers
         {
             _caller = httpContextAccessor.HttpContext.User;
             this.nethereumService = nethereumService;
-            this.mongoRepository = new MongoRepository<UserInfo>($"{mongoDbSettings.ConnectionString}/{mongoDbSettings.DatabaseName}" );
+            this.mongoRepository = new MongoRepository<UserInfo>($"{mongoDbSettings.ConnectionString}/{mongoDbSettings.DatabaseName}");
         }
 
         [HttpGet]
@@ -63,16 +63,7 @@ namespace CoinAPI.Controllers
             if (ethBalance >= model.Amount)
             {
                 var result = await nethereumService.InvestICO(user.PrivateKey, model.Amount);
-                if (result)
-                {
-                    return new OkObjectResult(true);
-                }
-                else
-                {
-                    var message = "Transaction error";
-                    //HttpError err = new HttpError(message);
-                    return new BadRequestObjectResult(message);
-                }
+                return new OkObjectResult(result);
             }
             else
             {
