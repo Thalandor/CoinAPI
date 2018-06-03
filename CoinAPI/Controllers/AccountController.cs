@@ -31,7 +31,7 @@ namespace CoinAPI.Controllers
             this.mapper = mapper;
             this.nethereumService = nethereumService;
             this.mongoDbSettings = mongoDbSettings;
-            this.mongoRepository = new MongoRepository<UserInfo>($"{mongoDbSettings.ConnectionString}/{mongoDbSettings.DatabaseName}" );
+            this.mongoRepository = new MongoRepository<UserInfo>($"{mongoDbSettings.ConnectionString}/{mongoDbSettings.DatabaseName}");
         }
         
         [HttpPost]
