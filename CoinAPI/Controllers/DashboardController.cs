@@ -28,7 +28,7 @@ namespace CoinAPI.Controllers
         public DashboardController(IHttpContextAccessor httpContextAccessor, INethereumService nethereumService, MongoDbSettings mongoDbSettings)
         {
             _caller = httpContextAccessor.HttpContext.User;
-            this.mongoRepository = new MongoRepository<UserInfo>("mongodb://localhost:27017/TokenDB");
+            this.mongoRepository = new MongoRepository<UserInfo>($"{mongoDbSettings.ConnectionString}/{mongoDbSettings.DatabaseName}" );
             this.nethereumService = nethereumService;
         }
 

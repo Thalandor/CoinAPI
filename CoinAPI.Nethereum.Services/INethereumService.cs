@@ -12,7 +12,7 @@ namespace CoinAPI.Nethereum.Services
 
         Task<decimal> GetAccountTokenBalance(string accountAddress);
 
-        Task<bool> InvestICO(string privateKey, decimal amount);
+        Task<string> InvestICO(string privateKey, decimal amount);
 
         Task<string> CreateOrder(string privateKey, string transactionId, decimal amount, decimal price);
 

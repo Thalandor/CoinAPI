@@ -28,6 +28,8 @@ using CoinAPI.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using CoinAPI.Nethereum.Services;
 using CoinAPI.Common.Models.Configuration;
+using MongoDbGenericRepository;
+using MongoDB.Driver;
 
 namespace CoinAPI
 {
@@ -126,8 +128,9 @@ namespace CoinAPI
                     .RequireAuthenticatedUser().Build());
             });
 
+            var mongoDbContext = new MongoDbContext($"{settings.ConnectionString}/{settings.DatabaseName}", settings.DatabaseName);
             services.AddIdentity<ApplicationUser, MongoIdentityRole>()
-                    .AddMongoDbStores<ApplicationUser, MongoIdentityRole, Guid>(settings.ConnectionString, settings.DatabaseName)
+                    .AddMongoDbStores<ApplicationUser, MongoIdentityRole, Guid>(mongoDbContext)
                     .AddDefaultTokenProviders();
 
 
