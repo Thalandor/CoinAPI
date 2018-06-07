@@ -215,7 +215,7 @@ contract TokenERC20 is owned{
     /**
      * Set the amount of dividends to pay to the token owners
      */
-    function payDividends() public onlyOwner payable{
+    function payDividends() public payable{
         dividends = msg.value;
     }
     
